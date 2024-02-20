@@ -43,5 +43,5 @@ python main.py -p1 stupidAI -p2 alphaBetaAI -limit_players 1,2 -verbose True -se
 python main.py -p1 alphaBetaAI -p2 randomAI -limit_players 1,2 -verbose True -seed 0\
 python main.py -p1 randomAI -p2 alphaBetaAI -limit_players 1,2 -verbose True -seed 0\
 python main.py -p1 alphaBetaAI -p2 monteCarloAI -limit_players 1,2 -verbose True -seed 0\
-python main.py -p1 monteCarloAI -p2 alphaBetaAI -limit_players 1,2 verbose True -seed 0\
+python main.py -p1 monteCarloAI -p2 alphaBetaAI -limit_players 1,2 verbose True -seed 0
 
