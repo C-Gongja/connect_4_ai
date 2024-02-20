@@ -1,4 +1,4 @@
-# Conncet 4 AI :robot:
+# :robot: Conncet 4 AI
 ## Rules
 * Competitors are free to use any algorithm and evaluation function they like, so long as the computation is done on the local machine (e.g. no online API calls)
 * The exception to the above rule is that exactly one move may be hardcoded. We recommend this to be the first move.
