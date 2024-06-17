@@ -265,74 +265,63 @@ class minimaxAI(connect4Player):
 		return score
 
 class alphaBetaAI(connect4Player):
-
 	ROW_COUNT = 6
 	COLUMN_COUNT = 7
 	WINDOW_SIZE = 4
 
-	# Set move value as a move list
 	def play(self, env: connect4, move: list) -> None:
-		#col = self.get_best_move(env)
-		col, minmax_val = self.minimax(env, 2, -math.inf, math.inf, True)
+		col, _ = self.minimax(env, 2, -math.inf, math.inf, True)
 		move[:] = [col]
 
 	def minimax(self, env, depth, alpha, beta, maxPlayer):
-		switch = {1:2,2:1}
+		switch = {1: 2, 2: 1}
 		player = self.position
 		possible_col_indices = [i for i, p in enumerate(env.topPosition >= 0) if p]
 		board = env.board
+
 		is_terminal = self.is_terminal_node(board, possible_col_indices)
 		if depth == 0 or is_terminal:
-			#print("depth is 0")
 			if is_terminal:
 				if self.winning_move(board, player):
 					return (None, 100000000000000)
 				elif self.winning_move(board, switch[player]):
 					return (None, -10000000000000)
-				else: # draw
+				else:  # draw
 					return (None, 0)
-			else: # Depth is zero
+			else:  # Depth is zero
 				return (None, self.score_position(board, player))
 
 		if maxPlayer:
 			value = -math.inf
-			max_col = random.choice(possible_col_indices)
+			best_col = random.choice(possible_col_indices)
 			for col in possible_col_indices:
 				row = env.topPosition[col]
-				#print("max board")
 				temp_env = env.getEnv()
-				self.simulate_move(temp_env, row, col, player) #player 2
-				temp_board = temp_env.getBoard()
-				#print(temp_board)
-				new_score = self.minimax(temp_env, depth-1, alpha, beta, False)[1] #first index
-				#print("max score: ", new_score)
+				self.simulate_move(temp_env, row, col, player)
+				new_score = self.minimax(temp_env, depth - 1, alpha, beta, False)[1]
 				if new_score > value:
 					value = new_score
-					max_col = col
+					best_col = col
 				alpha = max(alpha, value)
 				if alpha >= beta:
 					break
-			return max_col, value
+			return best_col, value
 
-		else: # min
+		else:  # minPlayer
 			value = math.inf
-			min_col = random.choice(possible_col_indices)
+			best_col = random.choice(possible_col_indices)
 			for col in possible_col_indices:
 				row = env.topPosition[col]
-				#print("min board")
 				temp_env = env.getEnv()
-				self.simulate_move(temp_env, row, col, switch[player]) #player 1
-				temp_board = temp_env.getBoard()
-				#print(temp_board)
-				new_score = self.minimax(temp_env, depth-1, alpha, beta, True)[1]#first index
-				#print("min score: ", new_score)
+				self.simulate_move(temp_env, row, col, switch[player])
+				new_score = self.minimax(temp_env, depth - 1, alpha, beta, True)[1]
 				if new_score < value:
 					value = new_score
-					min_col = col
+					best_col = col
 				beta = min(beta, value)
 				if alpha >= beta:
 					break
-			return min_col, value
+			return best_col, value
 
 	def is_terminal_node(self, board, valid_location):
 		switch = {1:2,2:1}

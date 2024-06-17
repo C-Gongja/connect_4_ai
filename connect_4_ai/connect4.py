@@ -113,14 +113,15 @@ class connect4():
 				print('The game has tied')
 			else:
 				print('Player ', self.turnPlayer.opponent.position, ' has won')
-		spectating = True
-		while spectating and self.visualize:
-			for event in pygame.event.get():
-				if event.type == pygame.QUIT:
-					pygame.quit()
-					sys.exit()
-					spectating = False
-					break
+
+		# spectating = True
+		# while spectating and self.visualize:
+		# 	for event in pygame.event.get():
+		# 		if event.type == pygame.QUIT:
+		# 			pygame.quit()
+		# 			sys.exit()
+		# 			spectating = False
+		# 			break
 
 	def gameOver(self, j, player):
 		# Find extrema to consider
@@ -250,6 +251,13 @@ class connect4():
 					pygame.draw.circle(screen, P2COLOR, (int((c)*SQUARESIZE+SQUARESIZE/2), height-int((5-r)*SQUARESIZE+SQUARESIZE/2)), RADIUS)
 		pygame.display.update()
 
+	def reset(self):
+		self.board = np.zeros(self.shape).astype('int32')
+		self.topPosition = (np.ones(self.shape[1]) * (self.shape[0]-1)).astype('int32')
+		self.turnPlayer = self.player1
+		self.history = [[], []]
+		if self.visualize:
+			self.draw_board()
 
 SQUARESIZE = 100
 BLUE = (0,0,255)

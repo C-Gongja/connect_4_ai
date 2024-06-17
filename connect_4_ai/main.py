@@ -2,6 +2,8 @@ import argparse
 from connect4 import connect4
 from players import human2, stupidAI, randomAI, human, minimaxAI, alphaBetaAI
 from montecarlo import monteCarloAI
+import pygame
+import sys
 
 parser = argparse.ArgumentParser(description='Run programming assignment 1')
 parser.add_argument('-w', default=6, type=int, help='Rows of game')
@@ -34,11 +36,84 @@ for i, v in enumerate(time_limit):
 	time_limit[i] = float(v)
 cvd_mode = bool_dict[args.cvd_mode]
 
-
 agents = {'human': human2, 'humanTxt': human, 'stupidAI': stupidAI, 'randomAI': randomAI, 'monteCarloAI': monteCarloAI, 'minimaxAI': minimaxAI, 'alphaBetaAI': alphaBetaAI}
 
+def popup(screen, message):
+	# Set up the font and colors
+	font = pygame.font.Font(None, 36)
+	bg_color = (30, 30, 30)
+	text_color = (255, 255, 255)
+	button_color = (70, 70, 70)
+	button_hover_color = (100, 100, 100)
+
+	# Create a surface for the popup
+	popup_width, popup_height = 300, 200
+	popup_surface = pygame.Surface((popup_width, popup_height))
+	popup_surface.fill(bg_color)
+
+	# Render the message
+	text_surface = font.render(message, True, text_color)
+	text_rect = text_surface.get_rect(center=(popup_width // 2, popup_height // 3))
+
+	# Create buttons
+	button_width, button_height = 100, 50
+	yes_button_rect = pygame.Rect((popup_width // 4 - button_width // 2, popup_height * 2 // 3 - button_height // 2), (button_width, button_height))
+	no_button_rect = pygame.Rect((popup_width * 3 // 4 - button_width // 2, popup_height * 2 // 3 - button_height // 2), (button_width, button_height))
+
+	running = True
+	while running:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				if event.button == 1:  # Left mouse button
+					mouse_pos = event.pos  # Use event.pos for correct position
+					if yes_button_rect.collidepoint(mouse_pos):
+						return True
+					elif no_button_rect.collidepoint(mouse_pos):
+						return False
+
+		# Update the popup
+		popup_surface.fill(bg_color)
+		popup_surface.blit(text_surface, text_rect)
+
+		# Draw buttons
+		mouse_pos = pygame.mouse.get_pos()
+		yes_button_color = button_hover_color if yes_button_rect.collidepoint(mouse_pos) else button_color
+		no_button_color = button_hover_color if no_button_rect.collidepoint(mouse_pos) else button_color
+
+		pygame.draw.rect(popup_surface, yes_button_color, yes_button_rect)
+		pygame.draw.rect(popup_surface, no_button_color, no_button_rect)
+
+		yes_text_surface = font.render("Yes", True, text_color)
+		no_text_surface = font.render("No", True, text_color)
+		popup_surface.blit(yes_text_surface, yes_text_surface.get_rect(center=yes_button_rect.center))
+		popup_surface.blit(no_text_surface, no_text_surface.get_rect(center=no_button_rect.center))
+
+		# Blit the popup to the main screen
+		screen.blit(popup_surface, ((screen.get_width() - popup_width) // 2, (screen.get_height() - popup_height) // 2))
+		pygame.display.flip()
+
 if __name__ == '__main__':
+	pygame.init()
+	screen = pygame.display.set_mode((800, 600))
+
+	continue_game = True
 	player1 = agents[args.p1](1, seed, cvd_mode)
 	player2 = agents[args.p2](2, seed, cvd_mode)
-	c4 = connect4(player1, player2, board_shape=(w,l), visualize=visualize, limit_players=limit_players, time_limit=time_limit, verbose=verbose, CVDMode=cvd_mode)
-	c4.play()
+	c4 = connect4(player1, player2, board_shape=(w, l), visualize=visualize, limit_players=limit_players, time_limit=time_limit, verbose=verbose, CVDMode=cvd_mode)
+
+	while continue_game:
+		print("Starting game")
+		c4.play()
+
+		continue_game = popup(screen, "Play again?")
+
+		if continue_game:
+			c4.reset()
+		else:
+			print("Exiting game.")
+
+	pygame.quit()
+	sys.exit()
