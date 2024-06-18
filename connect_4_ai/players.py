@@ -89,7 +89,7 @@ class minimaxAI(connect4Player):
 	# Set move value as a move list
 	def play(self, env: connect4, move: list) -> None:
 		#col = self.get_best_move(env)
-		col, minmax_val = self.minimax(env, 2, True)
+		col, minmax_val = self.minimax(env, 4, True)
 		move[:] = [col]
 
 	def minimax(self, env, depth, maxPlayer):
@@ -270,7 +270,7 @@ class alphaBetaAI(connect4Player):
 	WINDOW_SIZE = 4
 
 	def play(self, env: connect4, move: list) -> None:
-		col, _ = self.minimax(env, 2, -math.inf, math.inf, True)
+		col, _ = self.minimax(env, 4, -math.inf, math.inf, True)
 		move[:] = [col]
 
 	def minimax(self, env, depth, alpha, beta, maxPlayer):

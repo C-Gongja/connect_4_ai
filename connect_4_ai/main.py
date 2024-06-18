@@ -38,62 +38,86 @@ cvd_mode = bool_dict[args.cvd_mode]
 
 agents = {'human': human2, 'humanTxt': human, 'stupidAI': stupidAI, 'randomAI': randomAI, 'monteCarloAI': monteCarloAI, 'minimaxAI': minimaxAI, 'alphaBetaAI': alphaBetaAI}
 
+# Constants and setup for Pygame
+SQUARESIZE = 100
+BLUE = (0, 0, 255)
+BLACK = (0, 0, 0)
+P1COLOR = (255, 0, 0)
+P2COLOR = (255, 255, 0)
+WHITE = (255, 255, 255)
+
+# Assume these are the dimensions of your board
+ROW_COUNT = 6
+COLUMN_COUNT = 7
+
+RADIUS = int(SQUARESIZE / 2 - 5)
+
 def popup(screen, message):
-	# Set up the font and colors
-	font = pygame.font.Font(None, 36)
-	bg_color = (30, 30, 30)
-	text_color = (255, 255, 255)
-	button_color = (70, 70, 70)
-	button_hover_color = (100, 100, 100)
+    # Set up the font and colors
+    font = pygame.font.Font(None, 36)
+    bg_color = (30, 30, 30)
+    text_color = (255, 255, 255)
+    button_color = (70, 70, 70)
+    button_hover_color = (100, 100, 100)
 
-	# Create a surface for the popup
-	popup_width, popup_height = 300, 200
-	popup_surface = pygame.Surface((popup_width, popup_height))
-	popup_surface.fill(bg_color)
+    # Create a surface for the popup
+    popup_width, popup_height = 300, 200
+    popup_surface = pygame.Surface((popup_width, popup_height))
+    popup_surface.fill(bg_color)
 
-	# Render the message
-	text_surface = font.render(message, True, text_color)
-	text_rect = text_surface.get_rect(center=(popup_width // 2, popup_height // 3))
+    # Render the message
+    text_surface = font.render(message, True, text_color)
+    text_rect = text_surface.get_rect(center=(popup_width // 2, popup_height // 3))
 
-	# Create buttons
-	button_width, button_height = 100, 50
-	yes_button_rect = pygame.Rect((popup_width // 4 - button_width // 2, popup_height * 2 // 3 - button_height // 2), (button_width, button_height))
-	no_button_rect = pygame.Rect((popup_width * 3 // 4 - button_width // 2, popup_height * 2 // 3 - button_height // 2), (button_width, button_height))
+    # Create buttons
+    button_width, button_height = 100, 50
+    yes_button_rect = pygame.Rect((popup_width // 4 - button_width // 2, popup_height * 2 // 3 - button_height // 2), (button_width, button_height))
+    no_button_rect = pygame.Rect((popup_width * 3 // 4 - button_width // 2, popup_height * 2 // 3 - button_height // 2), (button_width, button_height))
 
-	running = True
-	while running:
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				pygame.quit()
-				sys.exit()
-			elif event.type == pygame.MOUSEBUTTONDOWN:
-				if event.button == 1:  # Left mouse button
-					mouse_pos = event.pos  # Use event.pos for correct position
-					if yes_button_rect.collidepoint(mouse_pos):
-						return True
-					elif no_button_rect.collidepoint(mouse_pos):
-						return False
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Left mouse button
+                    mouse_pos = event.pos  # Use event.pos for correct position
+                    # Calculate actual position of the buttons on the screen !! This is important to get the correct position of the buttons and mouse click
+                    popup_x = (screen.get_width() - popup_width) // 2
+                    popup_y = (screen.get_height() - popup_height) // 2
+                    actual_yes_button_rect = yes_button_rect.move(popup_x, popup_y)
+                    actual_no_button_rect = no_button_rect.move(popup_x, popup_y)
+                    if actual_yes_button_rect.collidepoint(mouse_pos):
+                        return True
+                    elif actual_no_button_rect.collidepoint(mouse_pos):
+                        return False
 
-		# Update the popup
-		popup_surface.fill(bg_color)
-		popup_surface.blit(text_surface, text_rect)
+        # Update the popup
+        popup_surface.fill(bg_color)
+        popup_surface.blit(text_surface, text_rect)
 
-		# Draw buttons
-		mouse_pos = pygame.mouse.get_pos()
-		yes_button_color = button_hover_color if yes_button_rect.collidepoint(mouse_pos) else button_color
-		no_button_color = button_hover_color if no_button_rect.collidepoint(mouse_pos) else button_color
+        # Draw buttons
+        mouse_pos = pygame.mouse.get_pos()
+        popup_x = (screen.get_width() - popup_width) // 2
+        popup_y = (screen.get_height() - popup_height) // 2
+        actual_yes_button_rect = yes_button_rect.move(popup_x, popup_y)
+        actual_no_button_rect = no_button_rect.move(popup_x, popup_y)
+        yes_button_color = button_hover_color if actual_yes_button_rect.collidepoint(mouse_pos) else button_color
+        no_button_color = button_hover_color if actual_no_button_rect.collidepoint(mouse_pos) else button_color
 
-		pygame.draw.rect(popup_surface, yes_button_color, yes_button_rect)
-		pygame.draw.rect(popup_surface, no_button_color, no_button_rect)
+        pygame.draw.rect(popup_surface, yes_button_color, yes_button_rect)
+        pygame.draw.rect(popup_surface, no_button_color, no_button_rect)
 
-		yes_text_surface = font.render("Yes", True, text_color)
-		no_text_surface = font.render("No", True, text_color)
-		popup_surface.blit(yes_text_surface, yes_text_surface.get_rect(center=yes_button_rect.center))
-		popup_surface.blit(no_text_surface, no_text_surface.get_rect(center=no_button_rect.center))
+        yes_text_surface = font.render("Yes", True, text_color)
+        no_text_surface = font.render("No", True, text_color)
+        popup_surface.blit(yes_text_surface, yes_text_surface.get_rect(center=yes_button_rect.center))
+        popup_surface.blit(no_text_surface, no_text_surface.get_rect(center=no_button_rect.center))
 
-		# Blit the popup to the main screen
-		screen.blit(popup_surface, ((screen.get_width() - popup_width) // 2, (screen.get_height() - popup_height) // 2))
-		pygame.display.flip()
+        # Blit the popup to the main screen
+        screen.blit(popup_surface, (popup_x, popup_y))
+        pygame.display.flip()
+
 
 if __name__ == '__main__':
 	pygame.init()
