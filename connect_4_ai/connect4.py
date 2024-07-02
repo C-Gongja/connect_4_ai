@@ -137,6 +137,9 @@ class connect4():
 		# Iterate over extrema to find patterns
 		# Horizontal solutions
 		count = 0
+		print("(i) row NUM: ", i)
+		print("row range: ", minRowIndex, maxRowIndex)
+		print("col range: ", maxColumnIndex, minColumnIndex)
 		for s in range(minRowIndex, maxRowIndex+1):
 			if self.board[i, s] == player:
 				count += 1
@@ -144,7 +147,7 @@ class connect4():
 				count = 0
 			if count == 4:
 				if self.visualize:
-					pygame.draw.line(screen, WHITE, (int(s*SQUARESIZE+SQUARESIZE/2), int((i+1.5)*SQUARESIZE)), (int((s-4)*SQUARESIZE+SQUARESIZE+SQUARESIZE/2), int((i+1.5)*SQUARESIZE)), 5)
+					pygame.draw.line(screen, WHITE, (int(s*SQUARESIZE+SQUARESIZE/2), int((i+1.5)*SQUARESIZE) + 100), (int((s-4)*SQUARESIZE+SQUARESIZE+SQUARESIZE/2), int((i+1.5)*SQUARESIZE)  +100), 5)
 					pygame.display.update()
 				return True
 		# Verticle solutions
@@ -156,7 +159,7 @@ class connect4():
 				count = 0
 			if count == 4:
 				if self.visualize:
-					pygame.draw.line(screen, WHITE, (int(j*SQUARESIZE+SQUARESIZE/2), int((s+2)*SQUARESIZE)), (int(j*SQUARESIZE+SQUARESIZE/2), int((s-2)*SQUARESIZE)), 5)
+					pygame.draw.line(screen, WHITE, (int(j*SQUARESIZE+SQUARESIZE/2), int((s+2)*SQUARESIZE  + 100)), (int(j*SQUARESIZE+SQUARESIZE/2), int((s-2)*SQUARESIZE + 100)), 5)
 					pygame.display.update()
 				return True
 		# Left diagonal
@@ -178,7 +181,7 @@ class connect4():
 		if count >= 4:
 			if self.visualize:
 					# top, bottom
-					pygame.draw.line(screen, WHITE, (int((j+0.5-(down_count-1))*SQUARESIZE), int((i+1.5-(down_count-1))*SQUARESIZE)), (int((j+0.5+(4-down_count))*SQUARESIZE), int((i+1.5+(4-down_count))*SQUARESIZE)), 5)
+					pygame.draw.line(screen, WHITE, (int((j+0.5-(down_count-1))*SQUARESIZE), int((i+1.5-(down_count-1))*SQUARESIZE + 100)), (int((j+0.5+(4-down_count))*SQUARESIZE), int((i+1.5+(4-down_count))*SQUARESIZE + 100)), 5)
 					pygame.display.update()
 			return True
 		# Right diagonal
@@ -199,7 +202,7 @@ class connect4():
 		if count >= 4:
 			if self.visualize:
 					# top, bottom
-					pygame.draw.line(screen, WHITE, (int((j+0.5-(down_count-1))*SQUARESIZE), int((i+1.5+(down_count-1))*SQUARESIZE)), (int((j+0.5+(4-down_count))*SQUARESIZE), int((i+1.5-(4-down_count))*SQUARESIZE)), 5)
+					pygame.draw.line(screen, WHITE, (int((j+0.5-(down_count-1))*SQUARESIZE), int((i+1.5+(down_count-1))*SQUARESIZE + 100)), (int((j+0.5+(4-down_count))*SQUARESIZE), int((i+1.5-(4-down_count))*SQUARESIZE + 100)), 5)
 					pygame.display.update()
 			return True
 		return len(self.history[0]) + len(self.history[1]) == self.shape[0]*self.shape[1]
@@ -231,17 +234,16 @@ class connect4():
 	def draw_board(self):
 		for c in range(self.shape[1]):
 			for r in range(self.shape[0]):
-				pygame.draw.rect(screen, BLUE, (c*SQUARESIZE, r*SQUARESIZE+SQUARESIZE, SQUARESIZE, SQUARESIZE))
-				pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE+SQUARESIZE/2), int(r*SQUARESIZE+SQUARESIZE+SQUARESIZE/2)), RADIUS)
+				pygame.draw.rect(screen, BLUE, (c * SQUARESIZE, height - (r + 1) * SQUARESIZE, SQUARESIZE, SQUARESIZE))
+				pygame.draw.circle(screen, BLACK, (int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
 		
 		# Draw player names at the top
 		font = pygame.font.SysFont(None, 30)
-		PLAYER_NAMES = ['Player 1', 'Player 2']
+		PLAYER_NAMES = [type(self.player1).__name__, type(self.player2).__name__]
 		PLAYER_COLORS = [P1COLOR, P2COLOR]
 		for i, name in enumerate(PLAYER_NAMES):
 			text = font.render(name, True, PLAYER_COLORS[i])
-			screen.blit(text, ((i * (self.shape[1] * SQUARESIZE) // 2), SQUARESIZE // 4))
-
+			screen.blit(text, ((i * (self.shape[1] * SQUARESIZE) // 2) + SQUARESIZE // 2, SQUARESIZE // 8))
 
 		for c in range(self.shape[1]):
 			for r in range(self.shape[0]):		
@@ -272,7 +274,7 @@ COLUMN_COUNT = 7
 SQUARESIZE = 100
 
 width = COLUMN_COUNT * SQUARESIZE
-height = (ROW_COUNT+1) * SQUARESIZE
+height = (ROW_COUNT+1) * SQUARESIZE + 100
 
 size = (width, height)
 

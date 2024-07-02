@@ -1,6 +1,6 @@
 import argparse
 from connect4 import connect4
-from players import human2, stupidAI, randomAI, human, minimaxAI, alphaBetaAI
+from players import humantxt, stupidAI, randomAI, human, minimaxAI, alphaBetaAI
 from montecarlo import monteCarloAI
 import pygame
 import sys
@@ -36,7 +36,7 @@ for i, v in enumerate(time_limit):
 	time_limit[i] = float(v)
 cvd_mode = bool_dict[args.cvd_mode]
 
-agents = {'human': human2, 'humanTxt': human, 'stupidAI': stupidAI, 'randomAI': randomAI, 'monteCarloAI': monteCarloAI, 'minimaxAI': minimaxAI, 'alphaBetaAI': alphaBetaAI}
+agents = {'human': human, 'humanTxt': humantxt, 'stupidAI': stupidAI, 'randomAI': randomAI, 'monteCarloAI': monteCarloAI, 'minimaxAI': minimaxAI, 'alphaBetaAI': alphaBetaAI}
 
 # Constants and setup for Pygame
 SQUARESIZE = 100
@@ -85,7 +85,7 @@ def popup(screen, message):
                     mouse_pos = event.pos  # Use event.pos for correct position
                     # Calculate actual position of the buttons on the screen !! This is important to get the correct position of the buttons and mouse click
                     popup_x = (screen.get_width() - popup_width) // 2
-                    popup_y = (screen.get_height() - popup_height) // 2
+                    popup_y = 10
                     actual_yes_button_rect = yes_button_rect.move(popup_x, popup_y)
                     actual_no_button_rect = no_button_rect.move(popup_x, popup_y)
                     if actual_yes_button_rect.collidepoint(mouse_pos):
@@ -100,7 +100,7 @@ def popup(screen, message):
         # Draw buttons
         mouse_pos = pygame.mouse.get_pos()
         popup_x = (screen.get_width() - popup_width) // 2
-        popup_y = (screen.get_height() - popup_height) // 2
+        popup_y = 10 
         actual_yes_button_rect = yes_button_rect.move(popup_x, popup_y)
         actual_no_button_rect = no_button_rect.move(popup_x, popup_y)
         yes_button_color = button_hover_color if actual_yes_button_rect.collidepoint(mouse_pos) else button_color
