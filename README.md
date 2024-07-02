@@ -39,3 +39,7 @@ $python main.py -p1 randomAI -p2 alphaBetaAI -limit_players 1,2 -verbose True -s
 $python main.py -p1 alphaBetaAI -p2 monteCarloAI -limit_players 1,2 -verbose True -seed 0\
 $python main.py -p1 monteCarloAI -p2 alphaBetaAI -limit_players 1,2 verbose True -seed 0
 
+#### AI vs Player cmd
+$python3 main.py -p1 human -p2 alphaBetaAI -limit_players 2 (do not set limit to human player)
+
+
