@@ -1,5 +1,8 @@
 # :robot: Conncet 4 AI
 
+https://github.com/C-Gongja/connect_4_ai/assets/86072287/4803362b-d76d-4fe8-a4ce-40b1b450e452
+
+
 ## Part I: Evaluation Function
 Please explicitly state your evaluation function for terminal nodes. Your report must cover the following:
 An explicit mathematical function to find the evaluation function from a given board
