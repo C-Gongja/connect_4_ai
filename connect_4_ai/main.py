@@ -141,3 +141,55 @@ if __name__ == '__main__':
 
 	pygame.quit()
 	sys.exit()
+
+
+# def minimax(self, env, depth, alpha, beta, maxPlayer):
+# 		switch = {1: 2, 2: 1}
+# 		player = self.position
+# 		possible_col_indices = [i for i, p in enumerate(env.topPosition >= 0) if p]
+# 		board = env.board
+
+# 		is_terminal = self.is_terminal_node(board, possible_col_indices)
+
+# 		if depth == 0 or is_terminal:
+# 			if is_terminal:
+# 				if self.winning_move(board, player):
+# 					return (None, 100000000000000)
+# 				elif self.winning_move(board, switch[player]):
+# 					return (None, -10000000000000)
+# 				else:  # draw
+# 					return (None, 0)
+# 			else:  # Depth is zero
+# 				return (None, self.score_position(board, player))
+
+# 		if maxPlayer:
+# 			value = -math.inf
+# 			best_col = random.choice(possible_col_indices)
+# 			for col in possible_col_indices:
+# 				row = env.topPosition[col]
+# 				temp_env = env.getEnv()
+# 				self.simulate_move(temp_env, row, col, player)
+# 				new_score = self.minimax(temp_env, depth - 1, alpha, beta, False)[1]
+# 				if new_score > value:
+# 					value = new_score
+# 					best_col = col
+# 				alpha = max(alpha, value)
+# 				if alpha >= beta:
+# 					break
+# 			return best_col, value
+
+# 		else:  # minPlayer
+# 			value = math.inf
+# 			best_col = random.choice(possible_col_indices)
+# 			for col in possible_col_indices:
+# 				row = env.topPosition[col]
+# 				temp_env = env.getEnv()
+# 				self.simulate_move(temp_env, row, col, switch[player])
+# 				new_score = self.minimax(temp_env, depth - 1, alpha, beta, True)[1]
+# 				if new_score < value:
+# 					value = new_score
+# 					best_col = col
+# 				beta = min(beta, value)
+# 				if alpha >= beta:
+# 					break
+# 			return best_col, value

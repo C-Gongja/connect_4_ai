@@ -89,90 +89,106 @@ class minimaxAI(connect4Player):
 
 	# Set move value as a move list
 	def play(self, env: connect4, move: list) -> None:
-		#col = self.get_best_move(env)
-		col, minmax_val = self.minimax(env, 3, True)
+		col, minmax_val = self.minimax(env, 5, True)
 		move[:] = [col]
 
 	def minimax(self, env, depth, maxPlayer):
-
-		if depth == 0:
-			return (None, self.score_position(env.board, self.position))
+		if self.is_winner(env.board, self.position):
+			return (None, 1000000000)
+		elif self.is_winner(env.board, self.opponent.position):
+			return (None, -1000000000)
+		elif self.draw(env):
+			return (None, 0)
+		
+		if depth == 0 :
+			return (None, self.get_score(env.board, self.position))
 		
 		if maxPlayer:
 			value = -math.inf
-			best_col = random.choice([i for i, p in enumerate(env.topPosition >= 0) if p])
+			best_col = 0
+			n=0
 			for col in [i for i, p in enumerate(env.topPosition >= 0) if p]:
+				n+=1
 				row = env.topPosition[col]
 				temp_env = env.getEnv()
 				self.simulate_move(temp_env, row, col, self.position)
-				if temp_env.gameOver(col, env.turnPlayer):
-					if self.winning_move(env.board, self.position):
-						return (col, 100000000000000)
-					elif self.winning_move(env.board, self.position.opponent):
-						return (col, -10000000000000)
-					else:  # draw
-						return (col, 0)
+				
 				new_score = self.minimax(temp_env, depth - 1, False)[1]
+				print(temp_env.board)
+				print("max depth: ", depth, " #: ", n, " score: ", new_score)
+				print("max New Score: ", new_score, " value: ", value)
 				if new_score > value:
 					value = new_score
 					best_col = col
+
 			return best_col, value
 		else:
 			value = math.inf
-			best_col = random.choice([i for i, p in enumerate(env.topPosition >= 0) if p])
+			best_col = 0
+			n=0
 			for col in [i for i, p in enumerate(env.topPosition >= 0) if p]:
+				n+=1
 				row = env.topPosition[col]
 				temp_env = env.getEnv()
 				self.simulate_move(temp_env, row, col, self.opponent.position)
-				if temp_env.gameOver(col, env.turnPlayer):
-					if self.winning_move(env.board, self.position):
-						return (col, 100000000000000)
-					elif self.winning_move(env.board, self.position.opponent):
-						return (col, -10000000000000)
-					else:  # draw
-						return (col, 0)
+				
 				new_score = self.minimax(temp_env, depth - 1, True)[1]
+				print(temp_env.board)
+				print("min depth: ", depth, " #: ", n, " score: ", new_score)
+				print("min New Score: ", new_score, " value: ", value)
 				if new_score < value:
 					value = new_score
 					best_col = col
-			return best_col, value
 
+			return best_col, value
+		
 	def simulate_move(self, env, row, col, player):
 		env.board[row][col] = player
 		env.topPosition[col] -= 1
 		env.history[0].append(col)
 
-	def score_position(self, board, player):
-		score = 0
-
-		center_array = [int(i) for i in list(board[:, self.COLUMN_COUNT // 2])]
-		center_count = center_array.count(player)
-		score += center_count * 6
+	def get_section(self, board):
+		sections = []
 		
 		for r in range(self.ROW_COUNT):
 			row_array = [int(i) for i in list(board[r, :])]
 			for c in range(self.COLUMN_COUNT - 3):
 				window = row_array[c:c + self.WINDOW_SIZE]
-				score += self.evaluate_window(window, player)
+				sections.append(window)
 		
 		for c in range(self.COLUMN_COUNT):
 			col_array = [int(i) for i in list(board[:, c])]
 			for r in range(self.ROW_COUNT - 3):
 				window = col_array[r:r + self.WINDOW_SIZE]
-				score += self.evaluate_window(window, player)
+				sections.append(window)
 		
+		# Diagonal up
 		for r in range(self.ROW_COUNT - 3):
 			for c in range(self.COLUMN_COUNT - 3):
 				window = [board[r + i][c + i] for i in range(self.WINDOW_SIZE)]
-				score += self.evaluate_window(window, player)
+				sections.append(window)
 
+		# Diagonal down
 		for r in range(self.ROW_COUNT - 3):
 			for c in range(self.COLUMN_COUNT - 3):
 				window = [board[r + 3 - i][c + i] for i in range(self.WINDOW_SIZE)]
-				score += self.evaluate_window(window, player)
+				sections.append(window)
 		
-		return score
+		print("sections nums: ", len(sections))
+		return sections
 
+	def get_score(self, board, player):
+		score = 0
+		sections = self.get_section(board)
+		for section in sections:
+			score += self.evaluate_window(section, player)
+
+		center_array = [int(i) for i in list(board[:, self.COLUMN_COUNT // 2])]
+		center_count = center_array.count(player)
+		score += center_count * 3
+
+		return score
+	
 	def evaluate_window(self, window, player):
 		score = 0
 		if window.count(player) == 4:
@@ -181,50 +197,62 @@ class minimaxAI(connect4Player):
 			score += 5
 		elif window.count(player) == 2 and window.count(0) == 2:
 			score += 2
-		elif window.count(player) == 1 and window.count(0) == 3:
-			score += 1
+		# elif window.count(player) == 1 and window.count(0) == 3:
+		# 	score += 1
 		
 		if window.count(self.opponent) == 3 and window.count(0) == 1:
 			score -= 4
-			
+
 		return score
+	
+	def is_winner(self, board, player):
+		#Check if player wins
+		sections = self.get_section(board)
+		for section in sections:
+			if section.count(player) == 4:
+				return True
 			
+		return False
+	
+	def draw(self, env):
+		# if the board is full == draw
+		if len(env.history[0]) + len(env.history[1]) == self.ROW_COUNT * self.COLUMN_COUNT:
+			return True
+		return False
 
 class alphaBetaAI(connect4Player):
 	ROW_COUNT = 6
 	COLUMN_COUNT = 7
 	WINDOW_SIZE = 4
 
+	# Using caches to store the score of the board
+	score_cache = {}
+	
+	def get_board_key(self, board):
+		return tuple(map(tuple, board))
+	
 	def play(self, env: connect4, move: list) -> None:
-		col, _ = self.minimax(env, 3, -math.inf, math.inf, True)
+		col, minmax_val = self.minimax(env, 5, -math.inf, math.inf, True)
 		move[:] = [col]
 
 	def minimax(self, env, depth, alpha, beta, maxPlayer):
-		switch = {1: 2, 2: 1}
-		player = self.position
-		possible_col_indices = [i for i, p in enumerate(env.topPosition >= 0) if p]
-		board = env.board
-
-		is_terminal = self.is_terminal_node(board, possible_col_indices)
-
-		if depth == 0 or is_terminal:
-			if is_terminal:
-				if self.winning_move(board, player):
-					return (None, 100000000000000)
-				elif self.winning_move(board, switch[player]):
-					return (None, -10000000000000)
-				else:  # draw
-					return (None, 0)
-			else:  # Depth is zero
-				return (None, self.score_position(board, player))
-
+		if self.is_winner(env.board, self.position):
+			return (None, 1000000000)
+		elif self.is_winner(env.board, self.opponent.position):
+			return (None, -1000000000)
+		elif self.draw(env):
+			return (None, 0)
+		
+		if depth == 0:
+			return (None, self.get_score(env.board, self.position))
+		
+		best_col = None
 		if maxPlayer:
 			value = -math.inf
-			best_col = random.choice(possible_col_indices)
-			for col in possible_col_indices:
+			for col in [i for i, p in enumerate(env.topPosition >= 0) if p]:
 				row = env.topPosition[col]
 				temp_env = env.getEnv()
-				self.simulate_move(temp_env, row, col, player)
+				self.simulate_move(temp_env, row, col, self.position)
 				new_score = self.minimax(temp_env, depth - 1, alpha, beta, False)[1]
 				if new_score > value:
 					value = new_score
@@ -233,14 +261,12 @@ class alphaBetaAI(connect4Player):
 				if alpha >= beta:
 					break
 			return best_col, value
-
-		else:  # minPlayer
+		else:
 			value = math.inf
-			best_col = random.choice(possible_col_indices)
-			for col in possible_col_indices:
+			for col in [i for i, p in enumerate(env.topPosition >= 0) if p]:
 				row = env.topPosition[col]
 				temp_env = env.getEnv()
-				self.simulate_move(temp_env, row, col, switch[player])
+				self.simulate_move(temp_env, row, col, self.opponent.position)
 				new_score = self.minimax(temp_env, depth - 1, alpha, beta, True)[1]
 				if new_score < value:
 					value = new_score
@@ -250,79 +276,82 @@ class alphaBetaAI(connect4Player):
 					break
 			return best_col, value
 
-	def is_terminal_node(self, board, valid_location):
-		switch = {1:2,2:1}
-		return self.winning_move(board, self.position) or self.winning_move(board, switch[self.position]) or len(valid_location) == 0
-	
-	def winning_move(self, board, piece):
-		switch = {1:2, 2:1}
-		for c in range(self.COLUMN_COUNT - 3):
-			for r in range(self.ROW_COUNT):
-				if board[r][c] == piece and board[r][c+1] == piece and board[r][c+2] == piece and board[r][c+3] == piece:
-					return True
-
-		for c in range(self.COLUMN_COUNT):
-			for r in range(self.ROW_COUNT - 3):
-				if board[r][c] == piece and board[r+1][c] == piece and board[r+2][c] == piece and board[r+3][c] == piece:
-					return True
-
-		for c in range(self.COLUMN_COUNT - 3):
-			for r in range(self.ROW_COUNT - 3):
-				if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
-					return True
-
-		for c in range(self.COLUMN_COUNT - 3):
-			for r in range(3, self.ROW_COUNT):
-				if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
-					return True
-
 	def simulate_move(self, env, row, col, player):
 		env.board[row][col] = player
 		env.topPosition[col] -= 1
 		env.history[0].append(col)
 
-	def score_position(self, board, player):
-		score = 0
-
-		center_array = [int(i) for i in list(board[:, self.COLUMN_COUNT // 2])]
-		center_count = center_array.count(player)
-		score += center_count * 6
+	def get_section(self, board):
+		sections = []
 		
 		for r in range(self.ROW_COUNT):
 			row_array = [int(i) for i in list(board[r, :])]
 			for c in range(self.COLUMN_COUNT - 3):
 				window = row_array[c:c + self.WINDOW_SIZE]
-				score += self.evaluate_window(window, player)
+				sections.append(window)
 		
 		for c in range(self.COLUMN_COUNT):
 			col_array = [int(i) for i in list(board[:, c])]
 			for r in range(self.ROW_COUNT - 3):
 				window = col_array[r:r + self.WINDOW_SIZE]
-				score += self.evaluate_window(window, player)
+				sections.append(window)
 		
+		# Diagonal up
 		for r in range(self.ROW_COUNT - 3):
 			for c in range(self.COLUMN_COUNT - 3):
 				window = [board[r + i][c + i] for i in range(self.WINDOW_SIZE)]
-				score += self.evaluate_window(window, player)
+				sections.append(window)
 
+		# Diagonal down
 		for r in range(self.ROW_COUNT - 3):
 			for c in range(self.COLUMN_COUNT - 3):
 				window = [board[r + 3 - i][c + i] for i in range(self.WINDOW_SIZE)]
-				score += self.evaluate_window(window, player)
+				sections.append(window)
 		
+		return sections
+
+	def get_score(self, board, player):
+		key = self.get_board_key(board)
+		if key in self.score_cache:
+			return self.score_cache[key]
+		
+		score = 0
+		sections = self.get_section(board)
+		for section in sections:
+			score += self.evaluate_window(section, player)
+
+		center_array = [int(i) for i in list(board[:, self.COLUMN_COUNT // 2])]
+		center_count = center_array.count(player)
+		score += center_count * 3
+
+		self.score_cache[key] = score
+		return score
+	
+	def evaluate_window(self, window, player):
+		score = 0
+		if window.count(player) == 4:
+			score += 100
+		elif window.count(player) == 3 and window.count(0) == 1:
+			score += 5
+		elif window.count(player) == 2 and window.count(0) == 2:
+			score += 2
+		# elif window.count(player) == 1 and window.count(0) == 3:
+		# 	score += 1
+		
+		if window.count(self.opponent) == 3 and window.count(0) == 1:
+			score -= 4
+
 		return score
 
-	def evaluate_window(self, window, player):
-		if window.count(player) == 4:
-			return 10000
-		elif window.count(player) == 3 and window.count(0) == 1:
-			return 5
-		elif window.count(player) == 2 and window.count(0) == 2:
-			return 2
-		elif window.count(player) == 1 and window.count(0) == 3:
-			return 1
-		else:
-			return 0
+	def is_winner(self, board, player):
+		sections = self.get_section(board)
+		for section in sections:
+			if section.count(player) == 4:
+				return True
+		return False
+
+	def draw(self, env):
+		return len(env.history[0]) + len(env.history[1]) == self.ROW_COUNT * self.COLUMN_COUNT
 
 
 SQUARESIZE = 100

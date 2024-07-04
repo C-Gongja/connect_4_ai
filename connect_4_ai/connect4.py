@@ -73,7 +73,11 @@ class connect4():
 		if self.turnPlayer.position in self.limit:
 			time_limit(self.turnPlayer.play, (self.getEnv(),move,), self.time_limits[self.turnPlayer.position-1])
 		else:
+			start_time = time.time()
 			self.turnPlayer.play(self.getEnv(), move)
+			end_time = time.time()
+			runtime = end_time - start_time
+			print('Player ', self.turnPlayer.position, ' took ', runtime, ' seconds')
 		# Move returned as list because lists are mutable
 		move = move[0]
 		# Correct illegal move (assign random)
@@ -137,9 +141,6 @@ class connect4():
 		# Iterate over extrema to find patterns
 		# Horizontal solutions
 		count = 0
-		print("(i) row NUM: ", i)
-		print("row range: ", minRowIndex, maxRowIndex)
-		print("col range: ", maxColumnIndex, minColumnIndex)
 		for s in range(minRowIndex, maxRowIndex+1):
 			if self.board[i, s] == player:
 				count += 1
